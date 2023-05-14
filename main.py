@@ -163,7 +163,7 @@ def play():
             collision_occurred = True
 
             if lives_remaining == 0:
-                #running = False
+                running = False
                 game_over()
 
 
