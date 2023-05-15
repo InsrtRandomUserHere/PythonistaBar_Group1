@@ -5,17 +5,21 @@ from pygame import mixer
 
 pygame.init()
 mixer.init()
+
 # Game window
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Direction Roulette")
-score = 0
-lives_remaining = 3
 enemies = pygame.sprite.Group()
 
 # BGM
 mixer.music.load("assets/sfx/music_background.wav")
 mixer.music.play(-1)
+
+lives_remaining = 1
+score = 0
+is_game_over = False
+
 
 # Create player object
 class Player(pygame.sprite.Sprite):
@@ -64,6 +68,9 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
         global score, chance_to_spawn_new_enemy
 
+        # Make the bomb go the proper way depending on its spawn location
+        # going downwards, must spawn from (randint, 0)
+        # vice versa
         if self.rect.top > screen_height and self.direction == "downwards" \
                 or self.rect.bottom > 0 and self.direction == "upwards" \
                 or self.rect.left > screen_width and self.direction == "to_right" \
@@ -106,21 +113,11 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.y = self.next_spawn_position_y
             self.rect.x -= self.speed
 
-
-class Powerup(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.Surface((10, 10))
-        self.image.fill((0, 255, 0))
-        self.rect = self.image.get_rect(center=(random.randint(5, screen_width), random.randint(5, screen_height)))
+            # Game loop
 
 
-
-
-
-# Game loop
 def play():
-    global score, lives_remaining
+    global score, lives_remaining, is_game_over
 
     # Create the Player
     player = Player()
@@ -131,10 +128,9 @@ def play():
     # Set up the game clock
     clock = pygame.time.Clock()
 
+    game_over = False
     running = True
     while running:
-        #powerup_threshold = 1
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -152,12 +148,11 @@ def play():
         # End game if player has collided
         # TODO: Add game over screen, add more lives
 
-        # Can't fix lives counter
         collision_occurred = False
         if pygame.sprite.spritecollide(player, enemies, False) and not collision_occurred:
             collision_occurred = True
 
-            player.rect.center = (screen_width//2, screen_height//2)
+            player.rect.center = (screen_width // 2, screen_height // 2)
             player.direction = None
             player.speed = 5
             lives_remaining -= 1
@@ -165,38 +160,78 @@ def play():
 
             if lives_remaining <= 0:
                 running = False
-                game_over()
-            else:
-                for enemy in enemies:
-                    enemy.kill()
-                enemies.add(Enemy())
-
-
-
-
+                game_over = True
 
         # Draw everything
-        # ---------------
-        # Background
-        screen.fill((35, 31, 32))
+        screen.fill((35, 31, 32))  # Background
+        screen.blit(player.image, player.rect)  # Player
+        enemies.draw(screen)  # Draw enemy
 
-        # Player
-        screen.blit(player.image, player.rect)
-
-        # Obstacles
-        enemies.draw(screen)
-
-        # Score text
         font = pygame.font.Font('arial.ttf', 32)
         score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (255, 255, 255))
         screen.blit(score_text, (10, 10))
         pygame.display.flip()
 
-        # Wait for next frame
+        # Set at 60 fps
         clock.tick(60)
 
-def game_over():
-    screen.fill((200, 50, 50))
-    pygame.display.flip()
+    if game_over:
+        game_over_screen(score)
+
+
+def game_over_screen(score):
+    global is_game_over
+
+    is_game_over = True
+
+    while is_game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if play_again_button_rect.collidepoint(mouse_pos):
+                    play_again()
+                elif main_menu_button_rect.collidepoint(mouse_pos):
+                    main_menu()
+
+        screen.fill((0, 0, 0))
+
+        game_over_text = pygame.font.Font(None, 80).render("Game Over!", True, (255, 255, 255))
+        game_over_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 80))
+        screen.blit(game_over_text, game_over_rect)
+
+        score_text = pygame.font.Font(None, 40).render("Score: " + str(score), True, (255, 255, 255))
+        score_rect = score_text.get_rect(center=(screen_width // 2, screen_height // 2))
+        screen.blit(score_text, score_rect)
+
+        play_again_button = pygame.font.Font(None, 30).render("Play Again", True, (255, 255, 255))
+        play_again_button_rect = play_again_button.get_rect(center=(screen_width // 2, screen_height // 2 + 80))
+        screen.blit(play_again_button, play_again_button_rect)
+
+        main_menu_button = pygame.font.Font(None, 30).render("Main Menu", True, (255, 255, 255))
+        main_menu_button_rect = main_menu_button.get_rect(center=(screen_width // 2, screen_height // 2 + 120))
+        screen.blit(main_menu_button, main_menu_button_rect)
+
+        pygame.display.flip()
+
+
+def play_again():
+    global score, lives_remaining, is_game_over, enemies
+
+    score = 0
+    lives_remaining = 3
+    is_game_over = False
+    enemies = pygame.sprite.Group()
+
+    play()
+
+    # Create a new enemy
+    enemies.add(Enemy())
+
+
+def main_menu():
+    pass
+
 
 play()
