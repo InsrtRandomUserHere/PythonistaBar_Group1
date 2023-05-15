@@ -64,9 +64,6 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
         global score, chance_to_spawn_new_enemy
 
-        # Make the bomb go the proper way depending on its spawn location
-        # going downwards, must spawn from (randint, 0)
-        # vice versa
         if self.rect.top > screen_height and self.direction == "downwards" \
                 or self.rect.bottom > 0 and self.direction == "upwards" \
                 or self.rect.left > screen_width and self.direction == "to_right" \
@@ -74,9 +71,8 @@ class Enemy(pygame.sprite.Sprite):
 
             self.direction = random.choice(["downwards", "upwards", "to_left", "to_right"])
 
-            # select a random x and y position to spawn from for the next direction.
-            self.next_spawn_position_y = random.randint(25, screen_height-25)
-            self.next_spawn_position_x = random.randint(25, screen_width-25)
+            self.next_spawn_position_y = random.randint(25, screen_height - 25)
+            self.next_spawn_position_x = random.randint(25, screen_width - 25)
 
             if self.direction == "downwards":
                 self.rect = self.image.get_rect(center=(self.next_spawn_position_x, 0))
@@ -165,6 +161,7 @@ def play():
             player.direction = None
             player.speed = 5
             lives_remaining -= 1
+            mixer.Sound("assets/sfx/life_lost.wav").play()
 
             if lives_remaining <= 0:
                 running = False
