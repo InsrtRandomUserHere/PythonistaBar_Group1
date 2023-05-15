@@ -56,7 +56,7 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("assets/images/bomb.png")
+        self.image = pygame.image.load("assets/images/rock.png")
         self.rect = self.image.get_rect(center=(random.randint(0, SCREEN_WIDTH), 0))
         self.speed = 7
         self.direction = random.choice(["downwards", "upwards", "to_left", "to_right"])
@@ -67,7 +67,7 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
         global score, chance_to_spawn_new_enemy
 
-        # Make the bomb go the proper way depending on its spawn location
+        # Make the rock go the proper way depending on its spawn location
         # going downwards, must spawn from (randint, 0)
         # vice versa
         if self.rect.top > SCREEN_HEIGHT and self.direction == "downwards" \
@@ -242,7 +242,7 @@ def play():
         enemies.draw(SCREEN)
 
         font = pygame.font.Font('arial.ttf', 32)
-        score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (0, 0, 0))
+        score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (14, 17, 22))
         SCREEN.blit(score_text, ((SCREEN_WIDTH // 2) - 150, 25))
         pygame.display.flip()
 
