@@ -95,7 +95,6 @@ class Enemy(pygame.sprite.Sprite):
             sound_passed.play()
 
             if random.randint(0, chance_to_spawn_new_enemy) == self.new_enemy_chance_threshold:
-                print("new enemy")
                 enemies.add(Enemy())
                 chance_to_spawn_new_enemy *= 4
 
