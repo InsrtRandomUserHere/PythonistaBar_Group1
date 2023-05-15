@@ -184,6 +184,10 @@ def main_menu():
     play_button_rect = play_button.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
     SCREEN.blit(play_button, play_button_rect)
 
+    directions = pygame.font.Font(None, 40).render("How to play: Just click and hope luck is on your side", True, (255, 255, 255))
+    directions_rect = play_button.get_rect(center=(100, SCREEN_HEIGHT - 50))
+    SCREEN.blit(directions, directions_rect)
+
     pygame.display.flip()
 
     while not is_game_over:
