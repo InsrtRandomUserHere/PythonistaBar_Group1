@@ -10,6 +10,7 @@ mixer.init()
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Direction Roulette")
+pygame.display.set_icon(pygame.image.load("assets/images/icon_direction_roulette.png"))
 enemies = pygame.sprite.Group()
 
 # BGM
@@ -117,7 +118,7 @@ class Enemy(pygame.sprite.Sprite):
 
 
 def play():
-    global score, lives_remaining, is_game_over
+    global score, lives_remaining, is_game_over, enemies
 
     # Create the Player
     player = Player()
@@ -149,6 +150,7 @@ def play():
         # TODO: Add game over screen, add more lives
 
         collision_occurred = False
+        enemy_amt = len(enemies)
         if pygame.sprite.spritecollide(player, enemies, False) and not collision_occurred:
             collision_occurred = True
 
@@ -157,19 +159,24 @@ def play():
             player.speed = 5
             lives_remaining -= 1
             mixer.Sound("assets/sfx/life_lost.wav").play()
+            enemies = pygame.sprite.Group()
+
+            for _ in range(enemy_amt): enemies.add(Enemy())
+
 
             if lives_remaining <= 0:
                 running = False
                 game_over = True
 
         # Draw everything
-        SCREEN.fill((35, 31, 32))  # Background
+
+        SCREEN.blit(pygame.image.load("assets/images/image_background.png").convert(), (0, 0))
         SCREEN.blit(player.image, player.rect)  # Player
         enemies.draw(SCREEN)  # Draw enemy
 
         font = pygame.font.Font('arial.ttf', 32)
-        score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (255, 255, 255))
-        SCREEN.blit(score_text, (10, 10))
+        score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (0, 0, 0))
+        SCREEN.blit(score_text, ((SCREEN_WIDTH//2)-150, 25))
         pygame.display.flip()
 
         # Set at 60 fps
@@ -183,6 +190,12 @@ def game_over_screen(score):
     global is_game_over
 
     is_game_over = True
+
+    button_width = 200
+    button_height = 50
+
+    play_again_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - button_width // 2, SCREEN_HEIGHT // 2 + 80, button_width, button_height)
+    main_menu_button_rect = pygame.Rect(SCREEN_WIDTH // 2 - button_width // 2, SCREEN_HEIGHT // 2 + 140, button_width, button_height)
 
     while is_game_over:
         for event in pygame.event.get():
@@ -201,26 +214,30 @@ def game_over_screen(score):
         game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))
         SCREEN.blit(game_over_text, game_over_rect)
 
-        score_text = pygame.font.Font(None, 40).render("Score: " + str(score), True, (255, 255, 255))
+        score_text = pygame.font.Font(None, 40).render(f"Score: {score}", True, (255, 255, 255))
         score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         SCREEN.blit(score_text, score_rect)
 
         play_again_button = pygame.font.Font(None, 30).render("Play Again", True, (255, 255, 255))
-        play_again_button_rect = play_again_button.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
+        play_again_button_rect.centerx = SCREEN_WIDTH // 2
         SCREEN.blit(play_again_button, play_again_button_rect)
 
         main_menu_button = pygame.font.Font(None, 30).render("Main Menu", True, (255, 255, 255))
-        main_menu_button_rect = main_menu_button.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 120))
+        main_menu_button_rect.centerx = SCREEN_WIDTH // 2
         SCREEN.blit(main_menu_button, main_menu_button_rect)
 
         pygame.display.flip()
+
+
+
+
 
 
 def play_again():
     global score, lives_remaining, is_game_over, enemies
 
     score = 0
-    lives_remaining = 3
+    lives_remaining = 0
     is_game_over = False
     enemies = pygame.sprite.Group()
 
