@@ -1,5 +1,3 @@
-import time
-
 import pygame
 import random
 
@@ -11,20 +9,19 @@ mixer.init()
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Direction Roulette")
-
 score = 0
 lives_remaining = 3
 enemies = pygame.sprite.Group()
 
 # BGM
-mixer.music.load("assets/bgm.wav")
+mixer.music.load("assets/sfx/music_background.wav")
 mixer.music.play(-1)
 
 # Create player object
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("assets/player.png")
+        self.image = pygame.image.load("assets/images/player.png")
         self.rect = self.image.get_rect(center=(screen_width // 2, screen_height // 2))
         self.speed = 5  # Default player speed
         self.direction = None
@@ -50,17 +47,17 @@ class Player(pygame.sprite.Sprite):
 
 
 # Define the Enemy class
-chance_to_spawn_new_enemy = 10
+chance_to_spawn_new_enemy = 20
 
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("assets/bombthing.png")
+        self.image = pygame.image.load("assets/images/bomb.png")
         self.rect = self.image.get_rect(center=(random.randint(0, screen_width), 0))
-        self.speed = 5
+        self.speed = 7
         self.direction = random.choice(["downwards", "upwards", "to_left", "to_right"])
-        self.next_spawn_position_y = 0
+        self.next_spawn_position_y = random.randint(0, screen_height)
         self.next_spawn_position_x = random.randint(0, screen_width)
         self.new_enemy_chance_threshold = 1
 
@@ -78,8 +75,8 @@ class Enemy(pygame.sprite.Sprite):
             self.direction = random.choice(["downwards", "upwards", "to_left", "to_right"])
 
             # select a random x and y position to spawn from for the next direction.
-            self.next_spawn_position_y = random.randint(0, screen_height)
-            self.next_spawn_position_x = random.randint(0, screen_width)
+            self.next_spawn_position_y = random.randint(25, screen_height-25)
+            self.next_spawn_position_x = random.randint(25, screen_width-25)
 
             if self.direction == "downwards":
                 self.rect = self.image.get_rect(center=(self.next_spawn_position_x, 0))
@@ -92,13 +89,13 @@ class Enemy(pygame.sprite.Sprite):
 
             score += 10
             self.speed += 0.01
-            sound_passed = mixer.Sound("assets/enemy_passed.wav")
+            sound_passed = mixer.Sound("assets/sfx/enemy_passed.wav")
             sound_passed.play()
 
             if random.randint(0, chance_to_spawn_new_enemy) == self.new_enemy_chance_threshold:
                 print("new enemy")
                 enemies.add(Enemy())
-                chance_to_spawn_new_enemy *= 5
+                chance_to_spawn_new_enemy *= 4
 
         if self.direction == "downwards":
             self.rect.x = self.next_spawn_position_x
@@ -120,6 +117,9 @@ class Powerup(pygame.sprite.Sprite):
         self.image = pygame.Surface((10, 10))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect(center=(random.randint(5, screen_width), random.randint(5, screen_height)))
+
+
+
 
 
 # Game loop
@@ -159,12 +159,23 @@ def play():
         # Can't fix lives counter
         collision_occurred = False
         if pygame.sprite.spritecollide(player, enemies, False) and not collision_occurred:
-            lives_remaining -= 1
             collision_occurred = True
 
-            if lives_remaining == 0:
+            player.rect.center = (screen_width//2, screen_height//2)
+            player.direction = None
+            player.speed = 5
+            lives_remaining -= 1
+
+            if lives_remaining <= 0:
                 running = False
                 game_over()
+            else:
+                for enemy in enemies:
+                    enemy.kill()
+                enemies.add(Enemy())
+
+
+
 
 
         # Draw everything
@@ -180,7 +191,7 @@ def play():
 
         # Score text
         font = pygame.font.Font('arial.ttf', 32)
-        score_text = font.render(f'Score: {score}\tLives: {lives_remaining}', True, (255, 255, 255))
+        score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (255, 255, 255))
         screen.blit(score_text, (10, 10))
         pygame.display.flip()
 
