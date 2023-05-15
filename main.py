@@ -7,8 +7,8 @@ pygame.init()
 mixer.init()
 
 # Game window
-screen_width, screen_height = 800, 600
-screen = pygame.display.set_mode((screen_width, screen_height))
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Direction Roulette")
 enemies = pygame.sprite.Group()
 
@@ -26,7 +26,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("assets/images/player.png")
-        self.rect = self.image.get_rect(center=(screen_width // 2, screen_height // 2))
+        self.rect = self.image.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         self.speed = 5  # Default player speed
         self.direction = None
 
@@ -35,11 +35,11 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         if self.direction == "up" and self.rect.top > 5:
             self.rect.y -= self.speed
-        elif self.direction == "down" and self.rect.bottom < screen_height - 5:
+        elif self.direction == "down" and self.rect.bottom < SCREEN_HEIGHT - 5:
             self.rect.y += self.speed
         elif self.direction == "left" and self.rect.left > 5:
             self.rect.x -= self.speed
-        elif self.direction == "right" and self.rect.right < screen_width - 5:
+        elif self.direction == "right" and self.rect.right < SCREEN_WIDTH - 5:
             self.rect.x += self.speed
 
     # Select random movement to go to
@@ -58,11 +58,11 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("assets/images/bomb.png")
-        self.rect = self.image.get_rect(center=(random.randint(0, screen_width), 0))
+        self.rect = self.image.get_rect(center=(random.randint(0, SCREEN_WIDTH), 0))
         self.speed = 7
         self.direction = random.choice(["downwards", "upwards", "to_left", "to_right"])
-        self.next_spawn_position_y = random.randint(0, screen_height)
-        self.next_spawn_position_x = random.randint(0, screen_width)
+        self.next_spawn_position_y = random.randint(0, SCREEN_HEIGHT)
+        self.next_spawn_position_x = random.randint(0, SCREEN_WIDTH)
         self.new_enemy_chance_threshold = 1
 
     def update(self):
@@ -71,24 +71,24 @@ class Enemy(pygame.sprite.Sprite):
         # Make the bomb go the proper way depending on its spawn location
         # going downwards, must spawn from (randint, 0)
         # vice versa
-        if self.rect.top > screen_height and self.direction == "downwards" \
+        if self.rect.top > SCREEN_HEIGHT and self.direction == "downwards" \
                 or self.rect.bottom > 0 and self.direction == "upwards" \
-                or self.rect.left > screen_width and self.direction == "to_right" \
+                or self.rect.left > SCREEN_WIDTH and self.direction == "to_right" \
                 or self.rect.right < 0 and self.direction == "to_left":
 
             self.direction = random.choice(["downwards", "upwards", "to_left", "to_right"])
 
-            self.next_spawn_position_y = random.randint(25, screen_height - 25)
-            self.next_spawn_position_x = random.randint(25, screen_width - 25)
+            self.next_spawn_position_y = random.randint(25, SCREEN_HEIGHT - 25)
+            self.next_spawn_position_x = random.randint(25, SCREEN_WIDTH - 25)
 
             if self.direction == "downwards":
                 self.rect = self.image.get_rect(center=(self.next_spawn_position_x, 0))
             elif self.direction == "upwards":
-                self.rect = self.image.get_rect(center=(self.next_spawn_position_x, screen_height))
+                self.rect = self.image.get_rect(center=(self.next_spawn_position_x, SCREEN_HEIGHT))
             elif self.direction == "to_right":
                 self.rect = self.image.get_rect(center=(0, self.next_spawn_position_y))
             elif self.direction == "to_left":
-                self.rect = self.image.get_rect(center=(screen_width, self.next_spawn_position_y))
+                self.rect = self.image.get_rect(center=(SCREEN_WIDTH, self.next_spawn_position_y))
 
             score += 10
             self.speed += 0.01
@@ -152,7 +152,7 @@ def play():
         if pygame.sprite.spritecollide(player, enemies, False) and not collision_occurred:
             collision_occurred = True
 
-            player.rect.center = (screen_width // 2, screen_height // 2)
+            player.rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
             player.direction = None
             player.speed = 5
             lives_remaining -= 1
@@ -163,13 +163,13 @@ def play():
                 game_over = True
 
         # Draw everything
-        screen.fill((35, 31, 32))  # Background
-        screen.blit(player.image, player.rect)  # Player
-        enemies.draw(screen)  # Draw enemy
+        SCREEN.fill((35, 31, 32))  # Background
+        SCREEN.blit(player.image, player.rect)  # Player
+        enemies.draw(SCREEN)  # Draw enemy
 
         font = pygame.font.Font('arial.ttf', 32)
         score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
+        SCREEN.blit(score_text, (10, 10))
         pygame.display.flip()
 
         # Set at 60 fps
@@ -195,23 +195,23 @@ def game_over_screen(score):
                 elif main_menu_button_rect.collidepoint(mouse_pos):
                     main_menu()
 
-        screen.fill((0, 0, 0))
+        SCREEN.fill((0, 0, 0))
 
         game_over_text = pygame.font.Font(None, 80).render("Game Over!", True, (255, 255, 255))
-        game_over_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 80))
-        screen.blit(game_over_text, game_over_rect)
+        game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))
+        SCREEN.blit(game_over_text, game_over_rect)
 
         score_text = pygame.font.Font(None, 40).render("Score: " + str(score), True, (255, 255, 255))
-        score_rect = score_text.get_rect(center=(screen_width // 2, screen_height // 2))
-        screen.blit(score_text, score_rect)
+        score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        SCREEN.blit(score_text, score_rect)
 
         play_again_button = pygame.font.Font(None, 30).render("Play Again", True, (255, 255, 255))
-        play_again_button_rect = play_again_button.get_rect(center=(screen_width // 2, screen_height // 2 + 80))
-        screen.blit(play_again_button, play_again_button_rect)
+        play_again_button_rect = play_again_button.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
+        SCREEN.blit(play_again_button, play_again_button_rect)
 
         main_menu_button = pygame.font.Font(None, 30).render("Main Menu", True, (255, 255, 255))
-        main_menu_button_rect = main_menu_button.get_rect(center=(screen_width // 2, screen_height // 2 + 120))
-        screen.blit(main_menu_button, main_menu_button_rect)
+        main_menu_button_rect = main_menu_button.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 120))
+        SCREEN.blit(main_menu_button, main_menu_button_rect)
 
         pygame.display.flip()
 
@@ -229,19 +229,20 @@ def play_again():
     # Create a new enemy
     enemies.add(Enemy())
 
+
 def main_menu():
     global is_game_over
 
     is_game_over = False
-    screen.fill((0, 0, 0))
+    SCREEN.fill((0, 0, 0))
 
     game_title_text = pygame.font.Font(None, 80).render("Direction Roulette", True, (255, 255, 255))
-    game_title_rect = game_title_text.get_rect(center=(screen_width // 2, screen_height // 2 - 80))
-    screen.blit(game_title_text, game_title_rect)
+    game_title_rect = game_title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))
+    SCREEN.blit(game_title_text, game_title_rect)
 
     play_button = pygame.font.Font(None, 30).render("Play", True, (255, 255, 255))
-    play_button_rect = play_button.get_rect(center=(screen_width // 2, screen_height // 2 + 80))
-    screen.blit(play_button, play_button_rect)
+    play_button_rect = play_button.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80))
+    SCREEN.blit(play_button, play_button_rect)
 
     pygame.display.flip()
 
@@ -255,6 +256,5 @@ def main_menu():
                     play_again()
                     main_menu()
 
-# Call the main_menu function before starting the game
-main_menu()
 
+main_menu()
