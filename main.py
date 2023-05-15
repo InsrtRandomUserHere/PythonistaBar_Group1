@@ -229,9 +229,32 @@ def play_again():
     # Create a new enemy
     enemies.add(Enemy())
 
-
 def main_menu():
-    pass
+    global is_game_over
 
+    is_game_over = False
+    screen.fill((0, 0, 0))
 
-play()
+    game_title_text = pygame.font.Font(None, 80).render("Direction Roulette", True, (255, 255, 255))
+    game_title_rect = game_title_text.get_rect(center=(screen_width // 2, screen_height // 2 - 80))
+    screen.blit(game_title_text, game_title_rect)
+
+    play_button = pygame.font.Font(None, 30).render("Play", True, (255, 255, 255))
+    play_button_rect = play_button.get_rect(center=(screen_width // 2, screen_height // 2 + 80))
+    screen.blit(play_button, play_button_rect)
+
+    pygame.display.flip()
+
+    while not is_game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if play_button_rect.collidepoint(mouse_pos):
+                    play_again()
+                    main_menu()
+
+# Call the main_menu function before starting the game
+main_menu()
+
