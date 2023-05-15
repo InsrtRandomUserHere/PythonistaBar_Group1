@@ -245,7 +245,7 @@ def play():
         SCREEN.blit(player.image, player.rect)
         enemies.draw(SCREEN)
 
-        font = pygame.font.Font('arial.ttf', 32)
+        font = pygame.font.Font('assets/arial.ttf', 32)
         score_text = font.render(f'Score: {score}       Lives: {lives_remaining}', True, (14, 17, 22))
         SCREEN.blit(score_text, ((SCREEN_WIDTH // 2) - 150, 25))
         pygame.display.flip()
